@@ -155,7 +155,10 @@ public static void userCreate(){
             ds.print("Your ID: "+userid);
             ds.print("Created: " + date.toString());
             ds.center(2);
-
+            
+            ds.print("Press enter to continue: ");
+            String pause = System.console().readLine();
+            
             //catch med FileNotFoundException og en Exception
             } catch(FileNotFoundException e){System.out.println(e);}
             catch(Exception e){System.out.println(e);}  

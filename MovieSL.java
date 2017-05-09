@@ -167,6 +167,7 @@ public class MovieSL{
             System.out.println("Database name?");
             
             File f = new File("_main.log");
+            
 
             //laver en "scan" der scanner scanname.log med brug af US locale. (altså er double 2.0 og ikke 2,0)
             Scanner scan = new Scanner(new File("_main.log"));
@@ -222,7 +223,7 @@ public class MovieSL{
             
              //while-loop som scanner en string, int, double og date.
 
-            //tilføjer de 4 inputs title/year/rating/date til movie arraylisten.
+            //tilføjer de 7 inputs type/id/title/seq/year/rating/date til movie arraylisten.
             movies.add(new Movie(movieType,movieID,title,seq,year,rating,date));
            
             /** 
@@ -232,13 +233,14 @@ public class MovieSL{
             */
             for(int i = 0; i < movies.size(); i++){
                 file.print(movies.get(i).getType() + " " + movies.get(i).getId() + " " + movies.get(i).getTitle() + " " + movies.get(i).getSeq() + "\r\n" + movies.get(i).getYear() + " " + movies.get(i).getRating() + " " + new String(movies.get(i).getDate().toString()) + "\r\n" + "\r\n");
-                System.out.println(movies.get(i).getType() + movies.get(i).getId() + movies.get(i).getTitle() + " " + movies.get(i).getSeq() + "\r\n" + movies.get(i).getYear() + " " + movies.get(i).getRating() + " " + new String(movies.get(i).getDate().toString()) + "\r\n" + "\r\n");
-            }                
+            }                   
+            ds.print("\r\n"+movieType+movieID+title+seq+year+rating+date);
             
+            ds.print("  "+"Press enter to continue: ");
+            String pause = System.console().readLine();
             //Besked der vises når for-loop'et er færdigt, bruger date variablen
             System.out.println("Document have been updated: " + date.toString());
             
-        //catch med FileNotFoundException og en Exception
         } catch(FileNotFoundException e){System.out.println(e);}
         catch(Exception e){System.out.println(e);}   
 
@@ -246,18 +248,27 @@ public class MovieSL{
 
     }//save end
     
-    public static void load(){
+    public static void load(String type){
             try{
             //arraylisten "movies" oprettes
             ArrayList<Movie> movies = new ArrayList<Movie>();
             Display ds = new Display();
-                    
-            //laver en "scan" der scanner scanname.log med brug af US locale. (altså er double 2.0 og ikke 2,0)
-            Scanner scan = new Scanner(new File("_search"+".log"));
-            scan.useLocale(Locale.US);
+            
+             Scanner curuser = new Scanner(new File(".current"+".user"));
+            String currentuser = curuser.next();
 
+            String scanty = "_search.log";
             //while-loop som scanner en string, int, double og date.
-            ds.print("loop3");
+            if(type.equals("load")){ scanty = "_search"+".log";}
+            if(type.equals("fav")){ scanty = "."+currentuser+".fav";}
+            if(type.equals("his")){ scanty = "."+currentuser+".his";}
+           
+           
+           Scanner scan = new Scanner(new File(scanty));
+
+            //laver en "scan" der scanner scanname.log med brug af US locale. (altså er double 2.0 og ikke 2,0)
+
+            scan.useLocale(Locale.US);
             while(scan.hasNext())
             {
                 movies.add(new Movie(scan.next(), scan.nextInt(), scan.next(), scan.nextInt(), scan.nextInt(), scan.nextDouble(), LocalDate.parse(scan.next())));
@@ -281,20 +292,14 @@ public class MovieSL{
             int jo = 1;
             int j = 1;
 
-            ds.print("moviepage "+moviepage+" size "+movies.size()+" jo "+jo+" i "+i);
-            ds.print("loop4");
-
             while(j <= moviepage/10){
-                ds.print("loop5");
                 pagesize = 10;
 
                 if(moviesize == 0){
-                    moviesize = 2; //hotfix loop4?
-                    ds.print("loop 4 fixed");
+                    moviesize = 2; 
                 }
 
                 if(moviesize >= jo){
-                    ds.print("loop5.2?");
                     if(i<0){i=0;jo=1;pagesize=10;j=1;}
                     ds.clear();
                     System.out.println("   Page "+j);
@@ -303,7 +308,7 @@ public class MovieSL{
                     if(moviesize < j*10){pagesize = moviesize;}
                     for(i = i; i < pagesize; i++){
                         String seq = String.valueOf(movies.get(i).getSeq());
-                        if(seq.equals("0")){seq = "";}
+                        if(seq.equals("0")){seq = " ";}
                         String formattedString = "";
                         String tempString = movies.get(i).getTitle()
 
@@ -312,15 +317,21 @@ public class MovieSL{
                         .trim();
                         formattedString = formattedString + tempString;
 
-                    System.out.println(i+"     "+formattedString+" "+seq+" - year: "+movies.get(i).getYear()+" - rating: "+movies.get(i).getRating());
+                     int titlelen = formattedString.length();
+                        int fixlen = 25 - formattedString.length();
+                        String addlen = "";
+                        for(int fl = 0; fl<fixlen;){
+                            addlen += " ";
+                            fl++;
+                        }
+
+                    ds.print(""+i+"     "+formattedString+" "+seq+addlen+" -   year: "+movies.get(i).getYear()+" -   rating: "+movies.get(i).getRating());
                     } // print
                     i = j*10;
                     ds.center(2);
-                    System.out.print("   < last "+j+" | "+moviepage/10+" next >");
-                    ds.center(1);
+                    System.out.print("   < last "+j+" | exit | index | "+moviepage/10+" next >   ");
                     np = System.console().readLine();
-                    //if(j==moviepage/10 && np.equals("last")){j-=1;jo-=10;np="last";};
-
+            
                     if(np.equals("next")){
                     j += 1;
                     jo += 10;
@@ -343,150 +354,24 @@ public class MovieSL{
                         
                         int idx = movies.get(npx).getId() - 1;
 
-                        view(idx);
+                        view(idx,type);
                     }
 
                     
                 } // nextpage
-                ds.print("loop8");
             } // j < moviepage/10                       
-            
-            //Besked der vises når for-loop'et er færdigt, bruger date variablen
-            // System.out.println("Document have been updated: " + date.toString());
-            ds.clear();
-        
-            String pause = System.console().readLine();
-        //catch med FileNotFoundException og en Exception
         } catch(FileNotFoundException e){System.out.println(e);}
         catch(Exception e){System.out.println(e); String pause = System.console().readLine();}
 
 
         } //load end
       
-       public static void fav(){
-            try{
-            //arraylisten "movies" oprettes
-            ArrayList<Movie> movies = new ArrayList<Movie>();
-            Display ds = new Display();
-                    
-            //laver en "scan" der scanner scanname.log med brug af US locale. (altså er double 2.0 og ikke 2,0)
-            Scanner curuser = new Scanner(new File(".current"+".user"));
-            String currentuser = curuser.next();
 
-            Scanner scan = new Scanner(new File("."+currentuser+".fav"));
-            scan.useLocale(Locale.US);
-
-            //while-loop som scanner en string, int, double og date.
-            ds.print("loop3");
-            while(scan.hasNext())
-            {
-                movies.add(new Movie(scan.next(), scan.nextInt(), scan.next(), scan.nextInt(), scan.nextInt(), scan.nextDouble(), LocalDate.parse(scan.next())));
-            }
-            
-            ds.clear();
-            
-            LocalDate date = LocalDate.now();
-            
-            /** 
-            for-loop som kører efter arraylisten movies længde.
-            inde i loopet printer den til file (altså scanname.log) title/year/rating/date og så en ny linje (\r\n)
-            Dernæst printer den til consolen de samme 4 variabler.
-            */ 
-
-            int moviepage = movies.size()+10;
-            int moviesize = movies.size();
-            int pagesize = 10;
-            String np = "next";
-            int i = 0;
-            int jo = 1;
-            int j = 1;
-
-            ds.print("moviepage "+moviepage+" size "+movies.size()+" jo "+jo+" i "+i);
-            ds.print("loop4");
-
-            while(j <= moviepage/10){
-                ds.print("loop5");
-                pagesize = 10;
-
-                if(moviesize == 0){
-                    moviesize = 2; //hotfix loop4?
-                    ds.print("loop 4 fixed");
-                }
-
-                if(moviesize >= jo){
-                    ds.print("loop5.2?");
-                    if(i<0){i=0;jo=1;pagesize=10;j=1;}
-                    ds.clear();
-                    System.out.println("Page "+j +" | pagesize " +pagesize +"| i "+ i);
-                    ds.center(2);
-                    pagesize = j*10;
-                    if(moviesize < j*10){pagesize = moviesize;}
-                    for(i = i; i < pagesize; i++){
-                        String seq = String.valueOf(movies.get(i).getSeq());
-                        if(seq.equals("0")){seq = "";}
-                        String formattedString = "";
-                        String tempString = movies.get(i).getTitle()
-
-                        .replace("-", " ")  //replacer - med mellemrum
-                        .replace("&", " and ")  //replacer & med "and"
-                        .trim();
-                        formattedString = formattedString + tempString;
-
-                    System.out.println(i+"     "+formattedString+" "+seq+" - year: "+movies.get(i).getYear()+" - rating: "+movies.get(i).getRating());
-                    } // print
-                    i = j*10;
-                    ds.center(2);
-                    System.out.print("< last "+j+" | "+moviepage/10+" next >");
-                    ds.center(1);
-                    np = System.console().readLine();
-                    //if(j==moviepage/10 && np.equals("last")){j-=1;jo-=10;np="last";};
-
-                    if(np.equals("next")){
-                    j += 1;
-                    jo += 10;
-                    }
-
-                    if(np.equals("last")){
-                            j -= 1;
-                            jo -= 10;
-                            i -= 20;
-                    }
-
-                    if(np.equals("exit")){
-                        ds.clear();
-                        ds.print("EXIT");
-                        j = moviepage/10 +1;
-                    }
-
-                    if(!np.equals("next")&&!np.equals("last")&&!np.equals("exit")){
-                        int npx = Integer.parseInt(np);
-                        
-                        int idx = movies.get(npx).getId() - 1;
-
-                        view(idx);
-                    }
-
-                    
-                } // nextpage
-                ds.print("loop8");
-            } // j < moviepage/10                       
-            
-            //Besked der vises når for-loop'et er færdigt, bruger date variablen
-            // System.out.println("Document have been updated: " + date.toString());
-            ds.clear();
-        
-            String pause = System.console().readLine();
-        //catch med FileNotFoundException og en Exception
-        } catch(FileNotFoundException e){System.out.println(e);}
-        catch(Exception e){System.out.println(e); String pause = System.console().readLine();}
-
-
-        } //load end
-
-     public static void view(int x){
+     public static void view(int x, String intype){
         try{
         ArrayList<Movie> movies = new ArrayList<Movie>();
-        ArrayList<Movie> history = new ArrayList<Movie>();
+        ArrayList<History> history = new ArrayList<History>();
+        ArrayList<Favorite> favorite = new ArrayList<Favorite>();
         ArrayList<Actor> actors = new ArrayList<Actor>();
         Display ds = new Display();
 
@@ -536,53 +421,82 @@ public class MovieSL{
 
         tempString = actor2
         .replace("-", " ")  //replacer - med mellemrum
-        .replace("&", " and ")  //replacer & med " and "
+        .replace("/", " / ")  //replacer & med " and "
         .trim();
         actor2 = tempString;
 
         tempString = char1
         .replace("-", " ")  //replacer - med mellemrum
-        .replace("&", " and ")  //replacer & med " and "
+        .replace("/", " / ")  //replacer & med " and "
         .trim();
         char1 = tempString;
 
         tempString = char2
         .replace("-", " ")  //replacer - med mellemrum
-        .replace("&", " and ")  //replacer & med " and "
+        .replace("/", " / ")  //replacer & med " and "
         .trim();
         char2 = tempString;
+        String ixtype = "added";
+        if(intype.equals("his")){ixtype = "viewed";}
 
         ds.print("   "+title+" "+seq+" ("+movies.get(x).getYear()+") \r\n"+ "   rating "+movies.get(x).getRating()+"/10");
-        ds.print("   ID: "+movies.get(x).getId()+"\r\n   genre: "+movies.get(x).getType()+"\r\n   added: "+movies.get(x).getDate()+"");
+        ds.print("   ID: "+movies.get(x).getId()+"\r\n   genre: "+movies.get(x).getType()+"\r\n   "+ixtype+": "+movies.get(x).getDate()+"");
         ds.center(1);
         ds.print("   Staring:\r\n"+"   "+actor1);
         ds.print("   "+actor2);
         ds.center(3);
-        ds.print("   play | add | exit  ");
+        System.out.print("   play | add | exit  ");
         String menu = System.console().readLine();
+        int i = x;
 
         if(menu.equals("play")){
             // Play movie...
 
             Scanner curuser = new Scanner(new File(".current"+".user"));
             String currentuser = curuser.next();
-            Scanner schis = new Scanner(new File("."+currentuser+".his"));
-            PrintStream his = new PrintStream(new File("."+currentuser+".his"));
 
+            Scanner schis = new Scanner(new File("."+currentuser+".his"));
             while(schis.hasNext())
             {
-                history.add(new Movie(schis.next(), schis.nextInt(), schis.next(), schis.nextInt(), schis.nextInt(), schis.nextDouble(), LocalDate.parse(schis.next())));
+            String hline1 = String.valueOf(schis.nextLine());
+            String hline2 = String.valueOf(schis.nextLine());
+
+            ds.print(""+hline1);
+            ds.print(""+hline2);
+            
+
+
+            history.add(new History(hline1,hline2));
+        
+            }  
+
+            PrintStream his = new PrintStream(new File("."+currentuser+".his"));
+            String htype = movies.get(i).getType();
+            int hid = movies.get(i).getId();
+            String htitle = movies.get(i).getTitle();
+            int hseq = movies.get(i).getSeq();
+            int hyear = movies.get(i).getYear();
+            double hrating = movies.get(i).getRating();
+            LocalDate hdate = LocalDate.now();
+
+            String hnline1 = htype +" "+ String.valueOf(hid) +" "+ htitle +" "+ String.valueOf(hseq);
+            String hnline2 = String.valueOf(hyear) + " " + String.valueOf(hrating) + " " + String.valueOf(hdate);
+
+            history.add(new History(hnline1,hnline2));
+
+            for(int j = 0; j<history.size();){
+            his.print(history.get(j).getLine1() +"\r\n"+ history.get(j).getLine2()+"\r\n");
+            j++;
+
             }
 
-            his.print(history.get(i).getType() + " " + history.get(i).getId() + " " + history.get(i).getTitle() + " " + history.get(i).getSeq() + "\r\n" + history.get(i).getYear() + " " + history.get(i).getRating() + " " + new String(history.get(i).getDate().toString()) + "\r\n" + "\r\n");
-
             ds.clear();
-            ds.print("   Playing: "+title);
+            ds.print("   Playing: "+title+" "+seq);
             ds.center(1);
             ds.print("   Staring: \r\n   "+actor1+" as "+char1);
             ds.print("   "+actor2+" as "+char2);
             ds.center(5);
-            ds.print("   "+"add | exit");
+            System.out.print("   "+"add | exit   ");
             menu = System.console().readLine();
 
 
@@ -595,20 +509,50 @@ public class MovieSL{
             ds.print("   "+title+" add to favorite");
             Scanner curuser = new Scanner(new File(".current"+".user"));
             String currentuser = curuser.next();
+
+            Scanner scfav = new Scanner(new File("."+currentuser+".fav"));
+            while(scfav.hasNext())
+            {
+            String hline1 = String.valueOf(scfav.nextLine());
+            String hline2 = String.valueOf(scfav.nextLine());
+
+            ds.print(""+hline1);
+            ds.print(""+hline2);
+            
+
+
+            favorite.add(new Favorite(hline1,hline2));
+        
+            }  
+
             PrintStream fav = new PrintStream(new File("."+currentuser+".fav"));
-            
-            int i = x;
-            
-            fav.print(movies.get(i).getType() + " " + movies.get(i).getId() + " " + movies.get(i).getTitle() + " " + movies.get(i).getSeq() + "\r\n" + movies.get(i).getYear() + " " + movies.get(i).getRating() + " " + new String(movies.get(i).getDate().toString()) + "\r\n" + "\r\n");
+            String htype = movies.get(i).getType();
+            int hid = movies.get(i).getId();
+            String htitle = movies.get(i).getTitle();
+            int hseq = movies.get(i).getSeq();
+            int hyear = movies.get(i).getYear();
+            double hrating = movies.get(i).getRating();
+            LocalDate hdate = LocalDate.now();
+
+            String hnline1 = htype +" "+ String.valueOf(hid) +" "+ htitle +" "+ String.valueOf(hseq);
+            String hnline2 = String.valueOf(hyear) + " " + String.valueOf(hrating) + " " + String.valueOf(hdate);
+
+            favorite.add(new Favorite(hnline1,hnline2));
+
+            for(int j = 0; j<favorite.size();){
+            fav.print(favorite.get(j).getLine1() +"\r\n"+ favorite.get(j).getLine2()+"\r\n");
+            j++;}
         }
 
         if(menu.equals("exit")){
             // exit menu
+            ds.clear();
             ds.print("Closing movie");
+            ds.center(1);
         }
-        
 
-
+        ds.print("Hit enter to continue: ");
+        ds.center(5);
         String pause = System.console().readLine();
         // catch med FileNotFoundException og en Exception
         }catch(FileNotFoundException e){System.out.println(e);}

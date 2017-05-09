@@ -35,7 +35,7 @@ while(main_run){
         ds.clear();
         ds.print("Welcome "+login_run+"\r\n");
         ds.print("1. Register a new account"+"\r\n"+"2. Login with excisting account "+"\r\n"+"3. Exit the program.");
-        ds.center(3);
+        ds.center(4);
 
         Scanner login_menu_input = new Scanner(System.in);
         int swi = login_menu_input.nextInt();
@@ -71,7 +71,7 @@ while(main_run){
     } // login_run
         ds.clear();
         ds.print("Welcome "+login_run+"\r\n");
-        ds.print("1. Add new movie"+"\r\n"+"2. Search for movies "+"\r\n"+"3. Load last search "+"\r\n"+"4. Watch favorite(s) "+"\r\n"+"5. Exit the program");
+        ds.print("1. Add new movie"+"\r\n"+"2. Search for movies "+"\r\n"+"3. Load last search "+"\r\n"+"4. Watch favorite(s) "+"\r\n"+"5. View History"+"\r\n"+"6. Log out"+"\r\n"+"7. Exit the program");
         ds.center(3);
         Scanner main_menu_input = new Scanner(System.in);
         int swit = main_menu_input.nextInt();
@@ -83,19 +83,32 @@ while(main_run){
 
                     case 2:
                         msl.search();
-                        ds.print("loop main");
-                        msl.load();
+                        msl.load("load");
                         break;
 
                     case 3:
-                        msl.load();
+                        msl.load("load");
                         break;
 
                     case 4:
-                        msl.fav();
+                        msl.load("fav");
                         break;
-                        
+
                     case 5:
+                        msl.load("his");
+                        break;
+
+                    case 6:
+                        String[] nar;
+                        nar = new String[10];
+                        try{
+                        PrintStream bopr = new PrintStream(new File(".current.user"));
+                        bopr.print("null"+"\r\n");
+                        main(nar);
+                        } catch(Exception e){System.out.println(e);}
+                        break;
+
+                    case 7:
                         main_run = false;
                         try{
                         PrintStream bopr = new PrintStream(new File(".current.user"));
@@ -104,7 +117,7 @@ while(main_run){
                         break;
                         
                     default:
-                        System.out.println("Please choose one of the given options!");
+                        ds.print("Please choose one of the given options!");
                         break;
 
                 }

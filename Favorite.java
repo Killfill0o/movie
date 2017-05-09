@@ -1,9 +1,9 @@
 import java.time.LocalDate;
 
-public class History
+public class Favorite
 {
 
-    public History(String line1, String line2)
+    public Favorite(String line1, String line2)
     {
         this.line1 = line1;
         this.line2 = line2;
